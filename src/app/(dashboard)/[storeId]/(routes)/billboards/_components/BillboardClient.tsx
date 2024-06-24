@@ -1,16 +1,19 @@
 'use client'
 
-import { useParams } from "next/navigation"
-import { useRouter } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { PlusIcon } from "lucide-react"
 import { Heading } from "../../settings/_components/Heading"
+import { BillboardColumn, columns } from "./Columns"
+import { DataTable } from "@/components/ui/data-table"
 
-interface BillboardClientProps { }
+interface BillboardClientProps {
+    billboards: BillboardColumn[]
+}
 
-export function BillboardClient({ }: BillboardClientProps) {
+export function BillboardClient({ billboards }: BillboardClientProps) {
     const router = useRouter()
     const params = useParams()
 
@@ -18,7 +21,7 @@ export function BillboardClient({ }: BillboardClientProps) {
         <>
             <div className="flex items-center justify-between">
                 <Heading
-                    title="Outdoors (0)"
+                    title={`Outdoors (${billboards.length})`}
                     description="Gerencie os outdoors da sua loja"
                 />
 
@@ -29,6 +32,12 @@ export function BillboardClient({ }: BillboardClientProps) {
             </div>
 
             <Separator />
+
+            <DataTable
+                columns={columns}
+                data={billboards}
+                searchKey="label"
+            />
         </>
     )
 }

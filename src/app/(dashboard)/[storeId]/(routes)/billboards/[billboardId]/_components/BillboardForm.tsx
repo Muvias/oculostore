@@ -9,12 +9,11 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 
 import { AlertModal } from "@/components/modals/alert-modal"
-import { ApiAlert } from "@/components/ui/api-alert"
 import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { ImageUpload } from "@/components/ui/image-upload"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-import { UseOrigin } from "@/hooks/use-origin"
 import { TrashIcon } from "lucide-react"
 import { toast } from "sonner"
 import { Heading } from "../../../settings/_components/Heading"
@@ -37,8 +36,6 @@ export function BillboardForm({ initialData }: BillboardFormProps) {
     const [isOpen, setIsOpen] = useState(false)
     const [loading, setLoading] = useState(false)
 
-    const originUrl = UseOrigin()
-
     const title = initialData ? "Editar outdoor" : "Criar outdoor"
     const description = initialData ? "Editar outdoor" : "Adicionar um novo outdoor"
     const toastMessage = initialData ? "Outdoor atualizado" : "Outdoor criado"
@@ -56,11 +53,16 @@ export function BillboardForm({ initialData }: BillboardFormProps) {
         try {
             setLoading(true)
 
-            await axios.patch(`/api/stores/${params.storeId}`, data)
+            if (initialData) {
+                await axios.patch(`/api/${params.storeId}/billboards/${params.billboardId}`, data)
+            } else {
+                await axios.post(`/api/${params.storeId}/billboards`, data)
+            }
 
+            router.push(`/${params.storeId}/billboards`)
             router.refresh()
 
-            toast.success("Loja atualizada")
+            toast.success(toastMessage)
         } catch (error) {
             toast.error("Algo deu errado, por favor tente novamente.")
         } finally {
@@ -72,14 +74,14 @@ export function BillboardForm({ initialData }: BillboardFormProps) {
         try {
             setLoading(true)
 
-            await axios.delete(`/api/stores/${params.storeId}`)
+            await axios.delete(`/api/${params.storeId}/billboards/${params.billboardId}`)
 
             router.refresh()
             router.push("/")
 
-            toast.success("Loja deletada com sucesso")
+            toast.success("Outdoor deletado")
         } catch (error) {
-            toast.error("Tenha certeza de remover todos os produtos e categorias antes.")
+            toast.error("Tenha certeza de remover todas as categorias que usam esse outdoor primeiro.")
         } finally {
             setLoading(false)
             setIsOpen(false)
@@ -120,6 +122,26 @@ export function BillboardForm({ initialData }: BillboardFormProps) {
                     onSubmit={form.handleSubmit(onSubmit)}
                     className="space-y-8 w-full"
                 >
+                    <FormField
+                        control={form.control}
+                        name="imageUrl"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Imagem de fundo</FormLabel>
+                                <FormControl>
+                                    <ImageUpload
+                                        value={field.value ? [field.value] : []}
+                                        disabled={loading}
+                                        onChange={(url) => field.onChange(url)}
+                                        onRemove={() => field.onChange("")}
+                                    />
+                                </FormControl>
+
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
                     <div className="grid grid-cols-3 gap-8">
                         <FormField
                             control={form.control}

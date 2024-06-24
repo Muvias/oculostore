@@ -10,7 +10,7 @@ export function ModalProvider() {
         setIsMounted(true)
     }, [])
 
-    if (!isMounted) null;
+    if (!isMounted) return null;
 
     return (
         <>
