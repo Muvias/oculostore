@@ -76,8 +76,8 @@ export function BillboardForm({ initialData }: BillboardFormProps) {
 
             await axios.delete(`/api/${params.storeId}/billboards/${params.billboardId}`)
 
+            router.push(`/${params.storeId}/billboards`)
             router.refresh()
-            router.push("/")
 
             toast.success("Outdoor deletado")
         } catch (error) {
