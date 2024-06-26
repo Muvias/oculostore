@@ -8,13 +8,13 @@ import { DataTable } from "@/components/ui/data-table"
 import { Separator } from "@/components/ui/separator"
 import { PlusIcon } from "lucide-react"
 import { Heading } from "../../settings/_components/Heading"
-import { BillboardColumn, columns } from "./Columns"
+import { CategoryColumn, columns } from "./Columns"
 
-interface BillboardClientProps {
-    billboards: BillboardColumn[]
+interface CategoryClientProps {
+    categories: CategoryColumn[]
 }
 
-export function BillboardClient({ billboards }: BillboardClientProps) {
+export function CategoryClient({ categories }: CategoryClientProps) {
     const router = useRouter()
     const params = useParams()
 
@@ -22,11 +22,11 @@ export function BillboardClient({ billboards }: BillboardClientProps) {
         <>
             <div className="flex items-center justify-between">
                 <Heading
-                    title={`Outdoors (${billboards.length})`}
-                    description="Gerencie os outdoors da sua loja"
+                    title={`Categorias (${categories.length})`}
+                    description="Gerencie as categorias da sua loja"
                 />
 
-                <Button onClick={() => router.push(`/${params.storeId}/billboards/new`)}>
+                <Button onClick={() => router.push(`/${params.storeId}/categories/new`)}>
                     <PlusIcon className="size-4 mr-2" />
                     Adc novo
                 </Button>
@@ -36,15 +36,15 @@ export function BillboardClient({ billboards }: BillboardClientProps) {
 
             <DataTable
                 columns={columns}
-                data={billboards}
-                searchKey="label"
+                data={categories}
+                searchKey="name"
             />
 
-            <Heading title="API" description="Chamadas API para Outdoors" />
+            <Heading title="API" description="Chamadas API para Categorias" />
 
             <Separator />
 
-            <ApiList entityName="billboards" entityIdName="outdoorId" />
+            <ApiList entityName="categorias" entityIdName="categoryId" />
         </>
     )
 }

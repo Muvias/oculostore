@@ -1,7 +1,7 @@
 'use client'
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Billboard } from "@prisma/client"
+import { Billboard, Category } from "@prisma/client"
 import axios from "axios"
 import { useParams, useRouter } from "next/navigation"
 import { useState } from "react"
@@ -11,55 +11,56 @@ import { z } from "zod"
 import { AlertModal } from "@/components/modals/alert-modal"
 import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { ImageUpload } from "@/components/ui/image-upload"
 import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { TrashIcon } from "lucide-react"
 import { toast } from "sonner"
 import { Heading } from "../../../settings/_components/Heading"
 
-interface BillboardFormProps {
-    initialData: Billboard | null;
+interface CategoryFormProps {
+    initialData: Category | null
+    billboards: Billboard[]
 }
 
 const formSchema = z.object({
-    label: z.string().min(1),
-    imageUrl: z.string().min(1),
+    name: z.string().min(1),
+    billboardId: z.string().min(1),
 })
 
-type BillboardFormValues = z.infer<typeof formSchema>;
+type CategoryFormValues = z.infer<typeof formSchema>;
 
-export function BillboardForm({ initialData }: BillboardFormProps) {
+export function CategoryForm({ initialData, billboards }: CategoryFormProps) {
     const params = useParams()
     const router = useRouter()
 
     const [isOpen, setIsOpen] = useState(false)
     const [loading, setLoading] = useState(false)
 
-    const title = initialData ? "Editar outdoor" : "Criar outdoor"
-    const description = initialData ? "Editar outdoor" : "Adicionar um novo outdoor"
-    const toastMessage = initialData ? "Outdoor atualizado" : "Outdoor criado"
+    const title = initialData ? "Editar categoria" : "Criar categoria"
+    const description = initialData ? "Editar categoria" : "Adicionar uma nova categoria"
+    const toastMessage = initialData ? "Categoria atualizada" : "Categoria criada"
     const action = initialData ? "Salvar mudanças" : "Criar"
 
-    const form = useForm<BillboardFormValues>({
+    const form = useForm<CategoryFormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: initialData || {
-            label: '',
-            imageUrl: ''
+            name: '',
+            billboardId: ''
         }
     })
 
-    async function onSubmit(data: BillboardFormValues) {
+    async function onSubmit(data: CategoryFormValues) {
         try {
             setLoading(true)
 
             if (initialData) {
-                await axios.patch(`/api/${params.storeId}/billboards/${params.billboardId}`, data)
+                await axios.patch(`/api/${params.storeId}/categories/${params.categoryId}`, data)
             } else {
-                await axios.post(`/api/${params.storeId}/billboards`, data)
+                await axios.post(`/api/${params.storeId}/categories`, data)
             }
 
-            router.push(`/${params.storeId}/billboards`)
+            router.push(`/${params.storeId}/categories`)
             router.refresh()
 
             toast.success(toastMessage)
@@ -74,14 +75,14 @@ export function BillboardForm({ initialData }: BillboardFormProps) {
         try {
             setLoading(true)
 
-            await axios.delete(`/api/${params.storeId}/billboards/${params.billboardId}`)
+            await axios.delete(`/api/${params.storeId}/categories/${params.categoryId}`)
 
-            router.push(`/${params.storeId}/billboards`)
+            router.push(`/${params.storeId}/categories`)
             router.refresh()
 
-            toast.success("Outdoor deletado")
+            toast.success("Categoria deletada")
         } catch (error) {
-            toast.error("Tenha certeza de remover todas as categorias que usam esse outdoor primeiro.")
+            toast.error("Tenha certeza de remover todos os produtos que usam essa categoria primeiro.")
         } finally {
             setLoading(false)
             setIsOpen(false)
@@ -122,40 +123,59 @@ export function BillboardForm({ initialData }: BillboardFormProps) {
                     onSubmit={form.handleSubmit(onSubmit)}
                     className="space-y-8 w-full"
                 >
-                    <FormField
-                        control={form.control}
-                        name="imageUrl"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Imagem de fundo</FormLabel>
-                                <FormControl>
-                                    <ImageUpload
-                                        value={field.value ? [field.value] : []}
-                                        disabled={loading}
-                                        onChange={(url) => field.onChange(url)}
-                                        onRemove={() => field.onChange("")}
-                                    />
-                                </FormControl>
-
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
                     <div className="grid grid-cols-3 gap-8">
                         <FormField
                             control={form.control}
-                            name="label"
+                            name="name"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Rótulo</FormLabel>
+                                    <FormLabel>Nome</FormLabel>
                                     <FormControl>
                                         <Input
                                             disabled={loading}
-                                            placeholder="Rótudo do outdoor"
+                                            placeholder="Nome da categoria"
                                             {...field}
                                         />
                                     </FormControl>
+
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="billboardId"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Outdoor</FormLabel>
+
+                                    <Select
+                                        disabled={loading}
+                                        onValueChange={field.onChange}
+                                        value={field.value}
+                                        defaultValue={field.value}
+                                    >
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue
+                                                    defaultValue={field.value}
+                                                    placeholder="Selecione um outdoor"
+                                                />
+                                            </SelectTrigger>
+                                        </FormControl>
+
+                                        <SelectContent>
+                                            {billboards.map((billboard) => (
+                                                <SelectItem
+                                                    key={billboard.id}
+                                                    value={billboard.id}
+                                                >
+                                                    {billboard.label}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
 
                                     <FormMessage />
                                 </FormItem>
