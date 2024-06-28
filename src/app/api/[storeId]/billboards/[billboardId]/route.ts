@@ -26,7 +26,6 @@ export async function PATCH(
     { params }: {
         params: {
             storeId: string, billboardId: string
-
         }
     }
 ) {
