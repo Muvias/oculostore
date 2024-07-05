@@ -44,7 +44,7 @@ export function CategoryClient({ categories }: CategoryClientProps) {
 
             <Separator />
 
-            <ApiList entityName="categorias" entityIdName="categoryId" />
+            <ApiList entityName="categories" entityIdName="categoryId" />
         </>
     )
 }
