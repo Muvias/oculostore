@@ -1,9 +1,10 @@
+import { ThemeButton } from "@/components/theme-button";
+import prismadb from "@/lib/prismadb";
 import { UserButton } from "@clerk/nextjs";
-import { MainNav } from "./MainNav";
-import { StoreSwitcher } from "./StoreSwitcher";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import prismadb from "@/lib/prismadb";
+import { MainNav } from "./MainNav";
+import { StoreSwitcher } from "./StoreSwitcher";
 
 export async function Navbar() {
     const { userId } = auth()
@@ -22,6 +23,7 @@ export async function Navbar() {
                 <MainNav className="mx-6" />
 
                 <div className="flex items-center ml-auto space-x-4">
+                    <ThemeButton />
                     <UserButton afterSignOutUrl="/" />
                 </div>
             </div>
